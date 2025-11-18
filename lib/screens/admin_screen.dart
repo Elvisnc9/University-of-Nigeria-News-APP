@@ -5,6 +5,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:student_application/screens/login_screen.dart';
 
 class AdminScreen extends StatefulWidget {
+  const AdminScreen({super.key});
+
   @override
   _AdminScreenState createState() => _AdminScreenState();
 }
@@ -167,12 +169,14 @@ class _AdminScreenState extends State<AdminScreen> {
           .where('flagged', isEqualTo: true)
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return Center(child: CircularProgressIndicator());
+        }
 
         final materials = snapshot.data!.docs;
-        if (materials.isEmpty)
+        if (materials.isEmpty) {
           return Center(child: Text("No flagged study materials"));
+        }
 
         return ListView.builder(
           itemCount: materials.length,
@@ -223,12 +227,14 @@ class _AdminScreenState extends State<AdminScreen> {
           .where('flagged', isEqualTo: true)
           .snapshots(),
       builder: (context, snapshot) {
-        if (!snapshot.hasData)
+        if (!snapshot.hasData) {
           return Center(child: CircularProgressIndicator());
+        }
 
         final requests = snapshot.data!.docs;
-        if (requests.isEmpty)
+        if (requests.isEmpty) {
           return Center(child: Text("No flagged help requests"));
+        }
 
         return ListView.builder(
           itemCount: requests.length,

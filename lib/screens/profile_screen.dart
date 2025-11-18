@@ -5,7 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class ProfileScreen extends StatefulWidget {
   final Function(bool) toggleTheme;
 
-  ProfileScreen({required this.toggleTheme});
+  const ProfileScreen({super.key, required this.toggleTheme});
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();

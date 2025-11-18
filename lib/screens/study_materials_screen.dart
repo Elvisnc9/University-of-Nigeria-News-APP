@@ -7,6 +7,8 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class StudyMaterialScreen extends StatefulWidget {
+  const StudyMaterialScreen({super.key});
+
   @override
   _StudyMaterialScreenState createState() => _StudyMaterialScreenState();
 }
@@ -16,7 +18,7 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseStorage _storage = FirebaseStorage.instance;
   bool _isUploading = false;
-  TextEditingController _searchController = TextEditingController();
+  final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
 
   Future<void> _pickAndUploadFile() async {
@@ -85,14 +87,14 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen> {
   }
 
   Future<void> _addCommentDialog(String docId) async {
-    TextEditingController _commentController = TextEditingController();
+    TextEditingController commentController = TextEditingController();
 
     await showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: Text("Add a Comment"),
         content: TextField(
-          controller: _commentController,
+          controller: commentController,
           decoration: InputDecoration(hintText: "Enter your comment"),
         ),
         actions: [
@@ -103,10 +105,10 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen> {
           TextButton(
             child: Text("Submit"),
             onPressed: () async {
-              if (_commentController.text.trim().isNotEmpty) {
+              if (commentController.text.trim().isNotEmpty) {
                 String userId = _auth.currentUser!.uid;
                 String userEmail = _auth.currentUser!.email ?? "Anonymous";
-                String comment = _commentController.text.trim();
+                String comment = commentController.text.trim();
 
                 await _firestore
                     .collection('study_materials')
@@ -262,20 +264,18 @@ class _StudyMaterialScreenState extends State<StudyMaterialScreen> {
                               onPressed: () => _downloadFile(data['url']),
                             ),
                             Text("Comments (${comments.length}):"),
-                            ...comments
-                                .map((comment) => ListTile(
-                                      title: Text(comment['comment']),
-                                      subtitle: Text(comment['user']),
-                                      trailing: comment['userId'] ==
-                                              _auth.currentUser!.uid
-                                          ? IconButton(
-                                              icon: Icon(Icons.delete),
-                                              onPressed: () => _deleteComment(
-                                                  docId, comment),
-                                            )
-                                          : null,
-                                    ))
-                                .toList(),
+                            ...comments.map((comment) => ListTile(
+                                  title: Text(comment['comment']),
+                                  subtitle: Text(comment['user']),
+                                  trailing: comment['userId'] ==
+                                          _auth.currentUser!.uid
+                                      ? IconButton(
+                                          icon: Icon(Icons.delete),
+                                          onPressed: () =>
+                                              _deleteComment(docId, comment),
+                                        )
+                                      : null,
+                                )),
                             TextButton(
                               child: Text("Add a Comment"),
                               onPressed: () => _addCommentDialog(docId),

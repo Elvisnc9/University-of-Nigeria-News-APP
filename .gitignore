@@ -161,3 +161,5 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 >>>>>>> e238c2e (Initial commit)
+
+.config/

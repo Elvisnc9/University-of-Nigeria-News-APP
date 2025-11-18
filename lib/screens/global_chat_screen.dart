@@ -6,6 +6,8 @@ import 'package:intl/intl.dart';
 import 'package:student_application/services/chat_service.dart';
 
 class GlobalChatScreen extends StatefulWidget {
+  const GlobalChatScreen({super.key});
+
   @override
   _GlobalChatScreenState createState() => _GlobalChatScreenState();
 }

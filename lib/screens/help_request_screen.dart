@@ -4,6 +4,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:student_application/services/firestore_service.dart';
 
 class HelpRequestScreen extends StatefulWidget {
+  const HelpRequestScreen({super.key});
+
   @override
   _HelpRequestScreenState createState() => _HelpRequestScreenState();
 }
