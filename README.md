@@ -22,6 +22,7 @@ The app provides students with a centralized platform for academic updates, anno
      <br /><br />
     <img src="assets/images/homepage.jpeg" width="200" />
      <br /><br />
+
 </p>
 
 ---
