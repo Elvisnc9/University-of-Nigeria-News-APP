@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:the_responsive_builder/the_responsive_builder.dart';
 import '../services/auth_service.dart';
 
 class RegisterScreen extends StatefulWidget {
@@ -81,7 +82,7 @@ class _RegisterScreenState extends State<RegisterScreen>
     if (user != null) {
       ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Registration Successful!")));
-      Navigator.pushReplacementNamed(context, "/home");
+      Navigator.pushReplacementNamed(context, "/login");
     } else {
       ScaffoldMessenger.of(context)
           .showSnackBar(const SnackBar(content: Text("Registration Failed!")));
@@ -94,42 +95,33 @@ class _RegisterScreenState extends State<RegisterScreen>
     final isDarkMode = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 36),
+              padding: EdgeInsets.symmetric(horizontal: 22, vertical: 10.h),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  SizedBox(height: 40),
-                  Container(
-                    height: 70,
-                    width: 70,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE7F0FF),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Icon(Icons.person_add_alt_1_rounded,
-                        color: const Color(0xFF156BFF), size: 44),
-                  ),
+                 
+                  Image.asset('assets/images/App_Logo.png', width: 25.h),
                   const SizedBox(height: 30),
                   Text(
                     "Create Account",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black.withOpacity(0.92),
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    "Sign up to get started with UniResources",
+                    "Sign up to get started with CampusNewz",
                     style: TextStyle(
-                        color: Colors.grey[500],
+                        color: Colors.grey[400],
                         fontSize: 15,
                         fontWeight: FontWeight.w500),
                   ),
@@ -137,15 +129,14 @@ class _RegisterScreenState extends State<RegisterScreen>
                   // Username Field
                   Container(
                     decoration: BoxDecoration(
-                      color: isDarkMode
-                          ? Colors.grey[900]
-                          : const Color(0xFFF3F6FC),
+                      color:  Colors.grey[900],
+                          
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: TextField(
                       controller: _usernameController,
                       style: const TextStyle(
-                        color: Colors.black87,
+                        color: Colors.white,
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
@@ -166,16 +157,15 @@ class _RegisterScreenState extends State<RegisterScreen>
                   // Email Field
                   Container(
                     decoration: BoxDecoration(
-                      color: isDarkMode
-                          ? Colors.grey[900]
-                          : const Color(0xFFF3F6FC),
+                      color:  Colors.grey[900],
+                       
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       style: const TextStyle(
-                        color: Colors.black87,
+                        color: Colors.white,
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
@@ -196,16 +186,15 @@ class _RegisterScreenState extends State<RegisterScreen>
                   // Password Field
                   Container(
                     decoration: BoxDecoration(
-                      color: isDarkMode
-                          ? Colors.grey[900]
-                          : const Color(0xFFF3F6FC),
+                      color: Colors.grey[900],
+                        
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: TextField(
                       controller: _passwordController,
                       obscureText: !_isPasswordVisible,
                       style: const TextStyle(
-                        color: Colors.black87,
+                        color: Colors.white,
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
@@ -235,7 +224,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 15),
+               SizedBox(height: 5.h),
                   SizedBox(
                     width: double.infinity,
                     height: 54,

@@ -2,13 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class AppTheme {
-  static final primaryColor = Colors.deepPurple;
-
-  static ThemeData lightTheme = ThemeData(
+  static final primaryColor = Colors.black;
+  static ThemeData myTheme = ThemeData(
+    scaffoldBackgroundColor: Colors.black,
       primaryColor: primaryColor,
       appBarTheme: AppBarTheme(
         backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
+        foregroundColor: Colors.black,
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(

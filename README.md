@@ -1,21 +1,53 @@
-<<<<<<< HEAD
-# study_material_mobile_application
-📚 Study Material Sharing App – A Flutter app for students to upload, search, and access study materials. Features include file uploads, keyword search, filters, and comments for discussions. Built with Flutter and Firebase for seamless sharing and collaboration. 
-=======
-# student_application
+# 🎓 Campus News – University Mobile App
 
-A new Flutter project.
+CampusNews is a modern mobile application designed to improve communication, access to resources, and student engagement within the university environment.  
+The app provides students with a centralized platform for academic updates, announcements, and campus-related services.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 📱 App Preview
 
-A few resources to get you started if this is your first Flutter project:
+> Screenshots of the application UI
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+<p align="center">
+  <img src="assets/images/onboarding.jpeg" width="200" />
+  <img src="assets/images/create.jpeg" width="200" />
+  <img src="assets/images/home.jpeg" width="200" />
+   <img src="assets/images/news.jpeg" width="200" />
+    <img src="assets/images/upload.jpeg" width="200" />
+</p>
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
->>>>>>> e238c2e (Initial commit)
+---
+
+## 🚀 Features
+
+- 🔐 Secure Authentication (Login & Signup)
+- 💬 Real-time News and Update
+- 📰 University Announcements & News
+- ⚡ Smooth Animations & Modern UI
+- 📱 Cross-platform (Android & iOS)
+
+---
+
+## 🏗️ App Architecture
+
+The app follows a **clean and scalable architecture** to ensure maintainability and performance.
+
+
+---
+
+## 🛠️ Tech Stack
+
+- **Frontend:** Flutter (Dart)
+- **Backend:** Firebase
+- **Authentication:** Firebase Auth
+- **Database:** Firestore
+- **Design:** Material 3
+
+---
+
+## 📦 Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Elvisnc9/University-of-Nigeria-News-APP.git

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:the_responsive_builder/the_responsive_builder.dart';
 import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -118,36 +119,27 @@ class _LoginScreenState extends State<LoginScreen>
     final isDarkMode = theme.brightness == Brightness.dark;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: FadeTransition(
         opacity: _fadeAnimation,
         child: GestureDetector(
           onTap: () => FocusScope.of(context).unfocus(),
           child: SingleChildScrollView(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 22, vertical: 36),
+              padding:  EdgeInsets.symmetric(horizontal: 22, vertical: 10.h),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // Logo or Illustration
-                  SizedBox(height: 40),
-                  Container(
-                    height: 70,
-                    width: 70,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE7F0FF),
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Icon(Icons.lock_outline_rounded,
-                        color: const Color(0xFF156BFF), size: 44),
-                  ),
+
+                  Image.asset('assets/images/App_Logo.png', width: 25.h),
                   const SizedBox(height: 30),
                   Text(
                     "Welcome Back!",
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.black.withOpacity(0.92),
+                      color: Colors.white,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -162,16 +154,16 @@ class _LoginScreenState extends State<LoginScreen>
                   // Email Field
                   Container(
                     decoration: BoxDecoration(
-                      color: isDarkMode
-                          ? Colors.grey[900]
-                          : const Color(0xFFF3F6FC),
+                      color: 
+                         Colors.grey[900],
+                    
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: TextField(
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       style: TextStyle(
-                        color: Colors.black87,
+                        color: Colors.white,
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
@@ -192,16 +184,15 @@ class _LoginScreenState extends State<LoginScreen>
                   // Password Field
                   Container(
                     decoration: BoxDecoration(
-                      color: isDarkMode
-                          ? Colors.grey[900]
-                          : const Color(0xFFF3F6FC),
+                      color: Colors.grey[900],
+                        
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: TextField(
                       controller: _passwordController,
                       obscureText: !_isPasswordVisible,
                       style: TextStyle(
-                        color: Colors.black87,
+                        color: Colors.white,
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
@@ -231,7 +222,7 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  SizedBox(height: 5.h),
                   Align(
                     alignment: Alignment.centerRight,
                     child: TextButton(

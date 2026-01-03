@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:the_responsive_builder/the_responsive_builder.dart';
 
 class Onboardingscreen extends StatefulWidget {
   const Onboardingscreen({super.key});
@@ -13,19 +14,19 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
 
   final List<_OnboardPageContent> _pages = [
     _OnboardPageContent(
-      image: 'assets/images/IllustrationCommunity.png',
-      title: 'Access Quality Resources',
+      image: 'assets/images/App_Logo.png',
+      title: 'Access Quality Information',
       subtitle:
-          'Find lecture notes, PDFs, past questions, and materials shared by fellow students.',
+          'Stay Updated With The lastest News, Events, and Informations by fellow students.',
     ),
     _OnboardPageContent(
-      image: 'assets/images/IllustrationResources.png',
-      title: 'Stay Organized',
+      image: 'assets/images/onboardingg.png',
+      title: 'Stay Informed',
       subtitle:
-          'Save materials, track your learning, and stay ahead with personalized study tools.',
+          'Track your learning, and stay ahead with personalized study tools.',
     ),
     _OnboardPageContent(
-      image: 'assets/images/IllustrationUpload (1).png',
+      image: 'assets/images/onbooaarding.png',
       title: 'Join the Community',
       subtitle:
           'Connect with fellow students, ask questions, and collaborate on academic goals.',
@@ -52,10 +53,11 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
     super.dispose();
   }
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: Colors.black,
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 8),
@@ -81,7 +83,7 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 18),
+              SizedBox(height: 8),
               // PageView for onboarding screens
               Expanded(
                 child: PageView.builder(
@@ -97,7 +99,7 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
                   ),
                 ),
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 1.h),
               // Page Indicator
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -109,32 +111,36 @@ class _OnboardingscreenState extends State<Onboardingscreen> {
                     height: 6,
                     margin: EdgeInsets.symmetric(horizontal: 4),
                     decoration: BoxDecoration(
-                      color: isActive ? Color(0xFF156BFF) : Color(0xFFE7F0FF),
+                      color: isActive ? Colors.white : Colors.grey,
                       borderRadius: BorderRadius.circular(3),
                     ),
                   );
                 }),
               ),
-              SizedBox(height: 18),
+              SizedBox(height: 5.h),
               // Next or Sign in button
-              SizedBox(
-                width: double.infinity,
-                height: 52,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color(0xFF156BFF),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
+              Padding(
+                padding:  EdgeInsets.symmetric(horizontal: 6.w),
+                child: SizedBox(
+                  height: 52,   
+                  
+                  child: ElevatedButton(
+                    
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
                     ),
-                  ),
-                  onPressed: _nextPage,
-                  child: Text(
-                    _currentPage == _pages.length - 1 ? 'Sign in' : 'Next',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 17,
-                      fontWeight: FontWeight.w500,
+                    onPressed: _nextPage,
+                    child: Text(
+                      _currentPage == _pages.length - 1 ? 'Sign in' : 'Next',
+                      style: const TextStyle(
+                        color: Colors.black,
+                        fontSize: 17,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
@@ -169,17 +175,17 @@ class _OnboardingPage extends StatelessWidget {
       children: [
         // The main image
         SizedBox(
-          height: 300,
+          height: 350,
           child: Center(
             child: Image.asset(
               content.image,
-              width: 400,
-              height: 300,
-              fit: BoxFit.contain,
+              width: 600,
+              height: 400,
+              fit: BoxFit.cover,
             ),
           ),
         ),
-        SizedBox(height: 30),
+        SizedBox(height: 5.h),
         // Title
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -189,11 +195,11 @@ class _OnboardingPage extends StatelessWidget {
             style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
         ),
-        SizedBox(height: 16),
+        SizedBox(height: 10),
         // Subtitle
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 14),
@@ -202,7 +208,7 @@ class _OnboardingPage extends StatelessWidget {
             textAlign: TextAlign.center,
             style: TextStyle(
               fontSize: 15,
-              color: Colors.grey[700],
+              color: Colors.grey[600],
             ),
           ),
         ),

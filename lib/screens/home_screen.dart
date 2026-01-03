@@ -1,499 +1,361 @@
-// import 'package:flutter/material.dart';
-// import 'package:firebase_auth/firebase_auth.dart';
-// import 'package:cloud_firestore/cloud_firestore.dart';
-
-// class HomeScreen extends StatefulWidget {
-//   const HomeScreen({super.key});
-
-//   @override
-//   State<HomeScreen> createState() => _HomeScreenState();
-// }
-
-// class _HomeScreenState extends State<HomeScreen> {
-
-//
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: const Text('Student Hub',
-//             style: TextStyle(fontWeight: FontWeight.bold)),
-//         actions: [
-//           _buildProfileAvatar(),
-//           const SizedBox(width: 12),
-//           IconButton(
-//             icon: const Icon(Icons.logout, size: 28),
-//             onPressed: () async {
-//               await _auth.signOut();
-//               Navigator.pushReplacementNamed(context, '/login');
-//             },
-//           ),
-//         ],
-//       ),
-//       body: RefreshIndicator(
-//         onRefresh: _onRefresh,
-//         child: Padding(
-//           padding: const EdgeInsets.all(20.0),
-//           child: Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             children: [
-//               _buildWelcomeSection(),
-//               const SizedBox(height: 30),
-//               _buildQuickActionsHeader(),
-//               const SizedBox(height: 20),
-//               Expanded(child: _buildActionGrid()),
-//             ],
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-
-//
-
-//   Widget _buildWelcomeSection() {
-//     return Column(
-//       crossAxisAlignment: CrossAxisAlignment.start,
-//       children: [
-//         Text(
-//           '👋 Welcome back,',
-//           style: TextStyle(
-//               fontSize: 18,
-//               color: Colors.grey[600],
-//               fontWeight: FontWeight.w500),
-//         ),
-//         const SizedBox(height: 8),
-//         Text(
-//           displayName.isNotEmpty ? displayName : 'Student',
-//           style: const TextStyle(
-//               fontSize: 28,
-//               fontWeight: FontWeight.bold,
-//               color: Colors.deepPurple),
-//         ),
-//         const SizedBox(height: 4),
-//         Text(
-//           userEmail,
-//           style: TextStyle(
-//               fontSize: 14,
-//               color: Colors.grey[500],
-//               fontStyle: FontStyle.italic),
-//         ),
-//       ],
-//     );
-//   }
-
-//   Widget _buildQuickActionsHeader() {
-//     return const Text(
-//       'Quick Access',
-//       style: TextStyle(
-//           fontSize: 22, fontWeight: FontWeight.bold, color: Colors.deepPurple),
-//     );
-//   }
-
-//   Widget _buildActionGrid() {
-//     return GridView.count(
-//       crossAxisCount: 2,
-//       mainAxisSpacing: 20,
-//       crossAxisSpacing: 20,
-//       childAspectRatio: 1.1,
-//       children: [
-//         _buildActionCard(
-//             icon: Icons.menu_book_rounded,
-//             title: 'Study Materials',
-//             color: Colors.deepPurple,
-//             route: '/materials'),
-//         _buildActionCard(
-//             icon: Icons.help_center_rounded,
-//             title: 'Help Desk',
-//             color: Colors.blue,
-//             route: '/help'),
-//         _buildActionCard(
-//             icon: Icons.forum_rounded,
-//             title: 'Chat',
-//             color: Colors.green,
-//             route: '/chat'),
-//       ],
-//     );
-//   }
-
-//   Widget _buildActionCard({
-//     required IconData icon,
-//     required String title,
-//     required Color color,
-//     required String route,
-//   }) {
-//     return Card(
-//       elevation: 4,
-//       shape: RoundedRectangleBorder(
-//         borderRadius: BorderRadius.circular(15),
-//       ),
-//       child: InkWell(
-//         borderRadius: BorderRadius.circular(15),
-//         onTap: () => Navigator.pushNamed(context, route),
-//         child: Container(
-//           decoration: BoxDecoration(
-//             borderRadius: BorderRadius.circular(15),
-//             gradient: LinearGradient(
-//                 begin: Alignment.topLeft,
-//                 end: Alignment.bottomRight,
-//                 colors: [color.withOpacity(0.9), color.withOpacity(0.7)]),
-//           ),
-//           child: Padding(
-//             padding: const EdgeInsets.all(16.0),
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.center,
-//               children: [
-//                 Icon(icon, size: 42, color: Colors.white),
-//                 const SizedBox(height: 15),
-//                 Text(
-//                   title,
-//                   textAlign: TextAlign.center,
-//                   style: const TextStyle(
-//                       color: Colors.white,
-//                       fontSize: 16,
-//                       fontWeight: FontWeight.w600),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-// }
+import 'dart:async';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:student_application/screens/news_Article.dart';
+import 'package:the_responsive_builder/the_responsive_builder.dart';
+import 'package:intl/intl.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class HomePage extends StatefulWidget {
+  const HomePage({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomePageState();
+  State<HomePage> createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomeScreen> {
-  int _selectedFilter = 0;
-  final List<String> _filters = [
-    'All',
-    'My Department',
-    'My Courses',
-    'Recently Added',
-    'Most Downloaded'
-  ];
-  final _auth = FirebaseAuth.instance;
-  final _db = FirebaseFirestore.instance;
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+  bool _isLoading = false;
+  final PageController _pageController = PageController(viewportFraction: 0.92);
+  Timer? _autoScrollTimer;
+  final ValueNotifier<int> _currentActionPage = ValueNotifier<int>(0);
+  
+  // 🔍 SEARCH CONTROLLER
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
-  String userEmail = '';
-  String displayName = '';
+  final List<Map<String, String>> trending = [
+    <String, String>{
+      'title': 'Examinations Approaching and New Strategies adopted',
+      'tag': 'Academics',
+      'image':
+      'https://images.unsplash.com/photo-1627423893729-3a79f48ff473?q=80&w=869&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      'description' : 'UNN 2025/2026 First Semester Examinations Begin in 10 Days – New Anti-Malpractice Strategies, CBT Rollout & “Zero Tolerance” Rules Unveiled!Nsukka, December 2, 2025 – The countdown is official: First Semester examinations for the 2025/2026 academic session at the University of Nigeria, Nsukka (UNN) will commence on Monday, December 15, 2025, and run through January 17, 2026. With less than two weeks left, the entire campus is now in full “exam mode” — libraries packed 24/7, hostels echoing with group discussions, and the famous UNN night class culture hitting fever pitch.'
+'But this year feels different. The Vice-Chancellor, Professor Charles Arizechukwu Igwe, has declared the 2025/2026 exams “the most fortified in UNN history,” rolling out a cocktail of brand-new strategies designed to crush examination malpractice, reward integrity, and leverage technology like never before.'
+'The Big Five New Strategies Every Lion Must Know 100% Biometric + Blockchain Verification at Exam Halls'
+'Thanks to the newly launched Lions Ledger UNN Blockchain Ecosystem, every student must now pass double verification before entering any exam venue:'
+'Live fingerprint scan matched against the blockchain-stored matriculation record.Real-time facial recognition powered by AI cameras at hall entrances.'
+'Mismatch = automatic disqualification and referral to the Exam Malpractice Committee — no appeals.Massive CBT Expansion – Over 60% of Courses Now Fully Digital Faculties of Biological Sciences, Physical Sciences, Engineering, Social Sciences, Business Administration, and most General Studies GST courses will write on computers at the ultra-modern Princess Alexandra CBT Centre  and the new Nnamdi Azikiwe Library CBT Wing '          
+    },
+
+    {
+      'title': 'Faculty Awareness on Birth Right and Abortion',
+      'tag': 'Public',
+      'image':
+      'https://images.unsplash.com/photo-1605084707586-d2bdee1a7105?q=80&w=1016&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+      'description' : 'UNN Admission Saga 2024/2025: From Merit Triumphs to Supplementary Lifelines – Amidst Storm Clouds of Racketeering Allegations!'
+'Nsukka, December 2, 2025 – The University of Nigeria, Nsukka (UNN), Africas intellectual powerhouse and Nigeria first indigenous university, continues to stir the pot in the 2024/2025 admission cycle. What began as a beacon of hope with the primary merit list in late November has evolved into a multi-batch marathon, offering second (and third) chances to thousands of JAMB warriors. Yet, beneath the celebrations, a brewing controversy over alleged racketeering – with whispers of N2 million "slots" for Medicine and Surgery – threatens to tarnish the Eagles Nest storied legacy of meritocracy. As the portal hums with activity, prospective Lions are left navigating a mix of elation, frustration, and calls for transparency from heavyweights like education consultant Alex Onyia.'
+    },
+    {
+      'title': 'Update on students Protest on School fees increase',
+      'tag': 'Trending',
+      'image':
+          'https://images.unsplash.com/photo-1617660707636-6c17e39a67cf?q=80&w=774&auto=format&fit=crop',
+    },
+    {
+      'title': ' Resmuption of the PostGraduate Lectures ',
+      'tag': 'Update',
+      'image':
+        'https://images.unsplash.com/photo-1554457606-ed16c39db884?q=80&w=870&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'description':  'UNN Holds Landmark Faculty-Wide Sensitization on “Birthright, Bodily Autonomy & Safe Choices” – Breaks Silence on Abortion, Reproductive Rights & Mental Health'
+'Nsukka, December 2, 2025 – In what many are already calling the most courageous campus conversation in decades took place today as the University of Nigeria, Nsukka UNN rolled out a university-wide faculty sensitization programme titled Birthright: My Body, My Future”. Organized jointly by the Office of the Dean of Students’ Affairs, the Medical Centre, the Faculty of Law, the Department of Psychology, and the student-led Reproductive Health Advocacy Club (RHAC), the event reached over 18,000 students across all 15 faculties in a single day through simultaneous physical and virtual sessions.'
+'For years, abortion and reproductive health remained the unspoken elephant on Nigerian campuses — whispered in hostels, back-alley risks, and silent trauma. Today, UNN shattered that taboo.'
+    },
+    {
+      'title': 'Admission Admission',
+      'tag': 'Information',
+      'image':
+        'https://images.unsplash.com/photo-1732811797813-16f831d5533f?q=80&w=774&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D',
+        'description' : ''
+    },
+  ];
 
   @override
   void initState() {
     super.initState();
-    loadUserDetails();
+
+    _autoScrollTimer = Timer.periodic(const Duration(seconds: 4), (_) {
+      if (!_pageController.hasClients || trending.isEmpty) return;
+      final nextPage = (_currentActionPage.value + 1) % trending.length;
+      _pageController.animateToPage(
+        nextPage,
+        duration: const Duration(milliseconds: 600),
+        curve: Curves.easeInOut,
+      );
+      _currentActionPage.value = nextPage;
+    });
   }
 
-  Future<void> loadUserDetails() async {
-    final currentUser = _auth.currentUser;
-    if (currentUser != null) {
-      setState(() => userEmail = currentUser.email ?? '');
-
-      final userDoc = await _db.collection('users').doc(currentUser.uid).get();
-      if (userDoc.exists) {
-        setState(() => displayName = userDoc.data()?['name'] ?? '');
-      }
-    }
+  @override
+  void dispose() {
+    _searchController.dispose(); // 🔍 Dispose search controller
+    _currentActionPage.dispose();
+    _autoScrollTimer?.cancel();
+    _pageController.dispose();
+    super.dispose();
   }
-
-  Future<void> _onRefresh() async => await loadUserDetails();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFFF8F9FB),
+      backgroundColor: Colors.grey[900],
       appBar: AppBar(
-        backgroundColor: Colors.white,
         elevation: 0,
-        leadingWidth: 54,
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 16.0, right: 0, top: 6),
-          child: Image.asset(
-            "assets/icons/ILogo.png", // Replace with your logo asset
-            width: 36,
-            height: 36,
-          ),
-        ),
-        title: Container(
-          height: 40,
-          child: TextField(
-            decoration: InputDecoration(
-              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 12),
-              filled: true,
-              fillColor: Color(0xFFF3F6FC),
-              prefixIcon: Icon(Icons.search, color: Colors.grey),
-              hintText: "Search courses, topic, file...",
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-                borderSide: BorderSide.none,
-              ),
-            ),
-          ),
-        ),
-        actions: [_buildProfileAvatar()],
+        backgroundColor: Colors.transparent,
+       leading: const Text('Campus News', 
+            style: TextStyle(fontSize: 20, fontWeight: FontWeight.w600, color: Colors.white)),
+        actions: [
+          _iconCircle(
+              Icons.person, () => Navigator.pushNamed(context, '/profile'))
+        ],
       ),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
+      extendBodyBehindAppBar: true,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8),
+          children: [
+            buildSearchBox(), // 🔍 Search box with functionality
+            SizedBox(height: 2.h),
+            _sectionHeader('Trending News'),
+            const SizedBox(height: 6),
+            _trendingPageView(),
+            SizedBox(height: 2.h),
+            _pageIndicators(),
+            const SizedBox(height: 18),
+            _sectionHeader('Latest News', actionText: 'See All'),
+            const SizedBox(height: 12),
+            // 🔍 NEWS LIST WITH SEARCH FILTERING
+            _buildLatestNewsList(),
+          ],
+        ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () {
+          Navigator.pushReplacementNamed(context, '/uploadScreen');
+        },
+        backgroundColor: Colors.red,
+        child: const Icon(Icons.add, size: 35, color: Colors.black),
+      ),
+    );
+  }
+
+  // 🔍 SEARCH BOX WITH FUNCTIONALITY
+  Widget buildSearchBox() {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white10,
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Row(
         children: [
-          // Filter Tabs
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-            color: Colors.white,
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: Row(
-                children: List.generate(
-                  _filters.length,
-                  (i) => Padding(
-                    padding: EdgeInsets.only(right: 8),
-                    child: ChoiceChip(
-                      label: Text(_filters[i],
-                          style: TextStyle(fontWeight: FontWeight.w500)),
-                      selected: _selectedFilter == i,
-                      selectedColor: Color(0xFF156BFF),
-                      backgroundColor: Color(0xFFF5F7FA),
-                      labelStyle: TextStyle(
-                        color:
-                            _selectedFilter == i ? Colors.white : Colors.black,
-                      ),
-                      onSelected: (_) => setState(() => _selectedFilter = i),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          // Resource List
+          const Icon(Icons.search, color: Colors.white),
+          const SizedBox(width: 8),
           Expanded(
-            child: ListView(
-              padding: EdgeInsets.all(12),
-              children: [
-                // Resource Card 1
-                _resourceCard(
-                  image:
-                      "assets/icons/ImageCalculus.png", // Replace with your course image
-                  fileType: "PDF",
-                  title: "Calculus II Integration Techniques",
-                  code: "MTH102",
-                  author: "Michael Rodriguez",
-                  timeAgo: "1 day ago",
-                  rating: 4.8,
-                  ratings: 11303,
-                  fileSize: "15MB",
-                  bookmarked: false,
-                ),
-                SizedBox(height: 16),
-                // Resource Card 2
-              ],
+            child: TextField(
+              controller: _searchController,
+              style: const TextStyle(color: Colors.white),
+              onChanged: (value) {
+                setState(() {
+                  _searchQuery = value.toLowerCase();
+                });
+              },
+              decoration: InputDecoration(
+                border: InputBorder.none,
+                hintText: 'Search news...',
+                hintStyle: const TextStyle(
+                    color: Colors.white70, fontWeight: FontWeight.bold),
+                suffixIcon: _searchController.text.isNotEmpty
+                    ? IconButton(
+                        icon: const Icon(Icons.clear, color: Colors.white70, size: 20),
+                        onPressed: () {
+                          _searchController.clear();
+                          setState(() {
+                            _searchQuery = '';
+                          });
+                        },
+                      )
+                    : null,
+              ),
             ),
           ),
         ],
       ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.pushNamed(context, '/uploadScreen');
-        },
-        backgroundColor: Color(0xFF156BFF),
-        child: Icon(Icons.add, color: Colors.white, size: 32),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+    );
+  }
+
+  // 🔍 LATEST NEWS LIST WITH SEARCH FILTERING
+  Widget _buildLatestNewsList() {
+    return StreamBuilder<QuerySnapshot>(
+      stream: FirebaseFirestore.instance
+          .collection("articles")
+          .where("status", isEqualTo: "approved")
+          .orderBy("timestamp", descending: true)
+          .snapshots(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+
+        final docs = snapshot.data!.docs;
+
+        if (docs.isEmpty) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(32.0),
+              child: Text(
+                "No approved articles yet",
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            ),
+          );
+        }
+
+        // 🔍 FILTER DOCUMENTS BASED ON SEARCH QUERY
+        final filteredDocs = docs.where((doc) {
+          if (_searchQuery.isEmpty) return true;
+          
+          final data = doc.data() as Map<String, dynamic>;
+          final title = (data['title'] ?? '').toString().toLowerCase();
+          final description = (data['description'] ?? '').toString().toLowerCase();
+          final author = (data['author'] ?? '').toString().toLowerCase();
+          final tag = (data['tag'] ?? '').toString().toLowerCase();
+          
+          return title.contains(_searchQuery) ||
+                 description.contains(_searchQuery) ||
+                 author.contains(_searchQuery) ||
+                 tag.contains(_searchQuery);
+        }).toList();
+
+        // Show "No results" if filtered list is empty
+        if (filteredDocs.isEmpty) {
+          return Center(
+            child: Padding(
+              padding: const EdgeInsets.all(32.0),
+              child: Column(
+                children: [
+                  const Icon(Icons.search_off, size: 64, color: Colors.white24),
+                  const SizedBox(height: 16),
+                  Text(
+                    'No results found for "$_searchQuery"',
+                    style: const TextStyle(color: Colors.white70, fontSize: 16),
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+
+        return Column(
+          children: filteredDocs.map((doc) {
+            return _buildLatestCard(doc);
+          }).toList(),
+        );
+      },
+    );
+  }
+
+  // 🎯 CARD WIDGET
+  Widget _buildLatestCard(DocumentSnapshot doc) {
+    final item = doc.data() as Map<String, dynamic>;
+
+    return InkWell(
+      onTap: () => Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => ArticleDetailPage(
+            article: {
+              "title": item["title"] ?? "",
+              "description": item["description"] ?? "",
+              "image": item["imageUrl"] ?? "",
+              "tag": item["tag"] ?? "",
+              "author": item["author"] ?? "",
+            },
+          ),
+        ),
       ),
-      bottomNavigationBar: BottomAppBar(
-        shape: CircularNotchedRectangle(),
-        notchMargin: 8,
+      child: Card(
+        color: Colors.white10,
+        margin: const EdgeInsets.symmetric(vertical: 8),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0),
+          padding: const EdgeInsets.all(10),
           child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              _bottomNavItem(Icons.home_rounded, "Home", selected: true),
-              _bottomNavItem(Icons.chat_bubble_rounded, "Message"),
-              SizedBox(width: 48), // Space for FAB
-              _bottomNavItem(Icons.bookmark, "Bookmarks"),
-              _bottomNavItem(Icons.person_rounded, "Profile"),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _resourceCard({
-    required String image,
-    required String fileType,
-    required String title,
-    required String code,
-    required String author,
-    required String timeAgo,
-    required double rating,
-    required int ratings,
-    required String fileSize,
-    required bool bookmarked,
-  }) {
-    return Card(
-      margin: EdgeInsets.zero,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(13.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Image and label
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: Image.asset(
-                    image,
-                    height: 84,
-                    width: double.infinity,
-                    fit: BoxFit.cover,
-                  ),
+              ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Image.network(
+                  item['imageUrl'] ?? '',
+                  width: 40.w,
+                  height: 14.h,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 40.w,
+                      height: 14.h,
+                      color: Colors.grey[800],
+                      child: const Icon(Icons.broken_image, color: Colors.white54),
+                    );
+                  },
                 ),
-                Positioned(
-                  top: 8,
-                  right: 10,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.85),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      fileType,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w500,
-                          fontSize: 13),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 14),
-            Text(title,
-                style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w700,
-                    color: Colors.black)),
-            SizedBox(height: 5),
-            Text(code,
-                style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w400,
-                    color: Colors.grey[600])),
-            // Author, time, rating, size
-            SizedBox(height: 8),
-            Row(
-              children: [
-                CircleAvatar(
-                  radius: 12,
-                  backgroundImage: AssetImage(
-                      "assets/icons/applogo.png"), // Replace as needed
-                ),
-                SizedBox(width: 7),
-                Expanded(
-                  child: Text(
-                    author,
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-                  ),
-                ),
-                Text(
-                  "• $timeAgo",
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ],
-            ),
-            SizedBox(height: 5),
-            Row(
-              children: [
-                Icon(Icons.star, color: Colors.amber, size: 17),
-                SizedBox(width: 2),
-                Text("$rating",
-                    style:
-                        TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                SizedBox(width: 3),
-                Text(
-                  "($ratings people rated)",
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-                Spacer(),
-                Icon(Icons.insert_drive_file,
-                    size: 18, color: Colors.grey[400]),
-                Text(" $fileSize",
-                    style:
-                        TextStyle(fontSize: 13, fontWeight: FontWeight.w500)),
-              ],
-            ),
-            SizedBox(height: 11),
-            // Actions
-            Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFF156BFF),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 11),
+                      child: Text(
+                        _formatTimestamp(item['timestamp']),
+                        style: const TextStyle(
+                            color: Colors.black,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold),
+                      ),
                     ),
-                    onPressed: () {},
-                    child: Text("Download",
-                        style: TextStyle(
-                            fontWeight: FontWeight.w600, fontSize: 16)),
-                  ),
+                    const SizedBox(height: 5),
+                    Text(
+                      item['title'] ?? '',
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 10,
+                          backgroundImage: AssetImage(
+                            item['authorAvatar'] ?? 'assets/images/App_Logo.png',
+                          ),
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          item['author'] ?? "Anonymous",
+                          style: TextStyle(color: Colors.grey[300], fontSize: 10),
+                        ),
+                        const Spacer(),
+                        const Icon(Icons.favorite, color: Colors.red, size: 18),
+                        const SizedBox(width: 8),
+                        Icon(Icons.bookmark_border,
+                            color: Colors.grey[500], size: 18),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(width: 10),
-                IconButton(
-                  icon: Icon(Icons.share, color: Color(0xFF575D6A)),
-                  onPressed: () {},
-                ),
-                IconButton(
-                  icon: Icon(
-                    bookmarked ? Icons.download : Icons.bookmark_border,
-                    color: bookmarked ? Color(0xFF156BFF) : Color(0xFF575D6A),
-                  ),
-                  onPressed: () {},
-                ),
-              ],
-            )
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _bottomNavItem(IconData icon, String label, {bool selected = false}) {
-    return Expanded(
-      child: InkWell(
-        customBorder:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-        onTap: () {},
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 2, horizontal: 0),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, color: selected ? Color(0xFF156BFF) : Colors.black),
-              Text(label,
-                  style: TextStyle(
-                    color: selected ? Color(0xFF156BFF) : Colors.black,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  )),
+              )
             ],
           ),
         ),
@@ -501,17 +363,156 @@ class _HomePageState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildProfileAvatar() {
-    return GestureDetector(
-      onTap: () => Navigator.pushNamed(context, '/profile'),
-      child: CircleAvatar(
-        backgroundColor: Color(0xFF156BFF),
-        child: Text(
-          userEmail.isNotEmpty ? userEmail[0].toUpperCase() : '?',
-          style: const TextStyle(
-              color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+  // 📅 FORMAT TIMESTAMP
+  String _formatTimestamp(dynamic timestamp) {
+    if (timestamp == null) return 'No date';
+    
+    DateTime dateTime;
+    if (timestamp is Timestamp) {
+      dateTime = timestamp.toDate();
+    } else if (timestamp is DateTime) {
+      dateTime = timestamp;
+    } else {
+      return 'Invalid date';
+    }
+    
+    return DateFormat('dd MMM, yyyy').format(dateTime);
+  }
+
+  Widget _iconCircle(IconData icon, VoidCallback onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(right: 12),
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: Colors.white10,
+          borderRadius: BorderRadius.circular(12),
         ),
+        child: Icon(icon, size: 18, color: Colors.white),
       ),
+    );
+  }
+
+  Widget _sectionHeader(String title, {String? actionText}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title,
+            style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                fontSize: 18)),
+        if (actionText != null && actionText.isNotEmpty)
+          InkWell(
+            onTap: () {
+              Navigator.pushNamed(context, '/viewAll');
+            },
+            child: Text(actionText,
+                style: const TextStyle(
+                    color: Colors.redAccent, fontWeight: FontWeight.w600)),
+          ),
+      ],
+    );
+  }
+
+  Widget _trendingPageView() {
+    return SizedBox(
+      height: 200,
+      child: PageView.builder(
+        controller: _pageController,
+        itemCount: trending.length,
+        onPageChanged: (index) {
+          _currentActionPage.value = index;
+        },
+        itemBuilder: (context, index) {
+          final item = trending[index];
+          return GestureDetector(
+            onTap: () => Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (_) => ArticleDetailPage(article: item))),
+            child: Padding(
+              padding: const EdgeInsets.only(right: 10),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(12),
+                child: Stack(
+                  children: [
+                    Positioned.fill(
+                      child: Image.network(item['image']!, fit: BoxFit.cover),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter,
+                          colors: [
+                            Colors.transparent,
+                            Colors.black.withOpacity(0.65)
+                          ],
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      top: 12,
+                      left: 12,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 10, vertical: 6),
+                        decoration: BoxDecoration(
+                            color: Colors.red,
+                            borderRadius: BorderRadius.circular(16)),
+                        child: Text(item['tag'] ?? '',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
+                      ),
+                    ),
+                    Positioned(
+                      left: 14,
+                      bottom: 12,
+                      right: 14,
+                      child: Text(
+                        item['title'] ?? '',
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16.sp),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _pageIndicators() {
+    return ValueListenableBuilder<int>(
+      valueListenable: _currentActionPage,
+      builder: (context, currentPage, child) {
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: List.generate(trending.length, (i) {
+            final isActive = i == currentPage;
+            return AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 4),
+              width: isActive ? 20 : 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: isActive ? Colors.grey[900] : Colors.grey[300],
+                borderRadius: BorderRadius.circular(8),
+              ),
+            );
+          }),
+        );
+      },
     );
   }
 }
