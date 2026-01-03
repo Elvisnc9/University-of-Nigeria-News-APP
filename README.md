@@ -11,10 +11,17 @@ The app provides students with a centralized platform for academic updates, anno
 
 <p align="center">
   <img src="assets/images/onboarding.jpeg" width="200" />
+   <br /><br />
   <img src="assets/images/create.jpeg" width="200" />
+ <br /><br />
   <img src="assets/images/home.jpeg" width="200" />
+   <br /><br />
    <img src="assets/images/news.jpeg" width="200" />
+    <br /><br />
     <img src="assets/images/upload.jpeg" width="200" />
+     <br /><br />
+    <img src="assets/images/homepage.jpeg" width="200" />
+     <br /><br />
 </p>
 
 ---
